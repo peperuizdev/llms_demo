@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Variables de entorno
+.env
+
+# Archivos de configuración de editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Streamlit config
+.streamlit/
