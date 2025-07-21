@@ -1,5 +1,5 @@
 import streamlit as st
-from app.generator import generate_text
+from app.generate_with_rag import generate_text_with_context
 from app.image_generator import generate_image_url
 import streamlit.components.v1 as components
 
@@ -17,13 +17,14 @@ with st.form("content_form"):
     language = st.selectbox("🌐 Idioma del contenido", [
         "Español", "Inglés", "Francés", "Italiano"
     ])
-
     model_display = {
         "LLaMA 3 (8B)": "meta-llama/llama-3-8b-instruct",
         "Mistral 7B": "mistralai/mistral-7b-instruct"
     }
     model_name = st.selectbox("🧠 Modelo LLM", list(model_display.keys()))
     model = model_display[model_name]
+
+    generate_image = st.checkbox("🎨 ¿Generar imagen con IA?", value=True)
 
     submit = st.form_submit_button("Generar contenido")
 
@@ -36,21 +37,23 @@ if submit:
             "Italiano": "Rispondi in italiano."
         }[language]
 
-        prompt = f"""{language_prompt}
-Escribe un contenido para la plataforma {platform}, sobre el tema: "{topic}".
-Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por {company if company else "una empresa"}.
-Debe ser directo, atractivo y adecuado para esa red social."""
+        # Construcción del prompt base
+        prompt_base = f"""{language_prompt}
+Escribe un contenido para la plataforma {platform}, sobre el tema: "{topic}"."""
 
-        result = generate_text(prompt, model)
+        # Generar contenido con o sin contexto
+        result = generate_text_with_context(prompt_base, tone, company, language, model)
 
     st.subheader("📄 Contenido generado:")
     st.write(result)
 
-    with st.spinner("🎨 Generando imagen con IA..."):
-        image_data = generate_image_url(topic)
+    # Imagen generada (opcional)
+    if generate_image:
+        with st.spinner("🎨 Generando imagen con IA..."):
+            image_data = generate_image_url(topic)
 
-    st.subheader("🖼️ Imagen generada por IA:")
-    if image_data:
-        components.html(f'<img src="{image_data}" width="512"/>', height=550)
-    else:
-        st.warning("No se pudo generar la imagen.")
+        st.subheader("🖼️ Imagen generada por IA:")
+        if image_data:
+            components.html(f'<img src="{image_data}" width="512"/>', height=550)
+        else:
+            st.warning("No se pudo generar la imagen.")
