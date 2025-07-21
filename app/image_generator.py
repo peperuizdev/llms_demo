@@ -12,7 +12,7 @@ API_URL = "https://api.stability.ai/v2beta/stable-image/generate/core"
 
 headers = {
     "Authorization": f"Bearer {API_KEY}",
-    "Accept": "image/*",  # Acepta cualquier tipo de imagen
+    "Accept": "image/*", 
 }
 
 def generate_image_url(prompt):

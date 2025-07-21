@@ -1,19 +1,21 @@
 import os
 import requests
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+# Cargar variables de entorno desde .env en la raíz del proyecto
+load_dotenv(dotenv_path=Path(__file__).resolve().parents[1] / ".env")
 
-# Usamos el modelo LLaMA 3 8B de Meta como ejemplo
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
+
 headers = {
     "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
     "Content-Type": "application/json"
 }
 
-def generate_text(prompt):
+def generate_text(prompt, model):
     payload = {
-        "model": "meta-llama/llama-3-8b-instruct",
+        "model": model,
         "messages": [
             {"role": "system", "content": "Eres un experto redactor para redes sociales."},
             {"role": "user", "content": prompt}
