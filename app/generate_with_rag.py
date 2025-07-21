@@ -6,36 +6,6 @@ from app.generator import generate_text
 # Cargar variables de entorno si se requieren
 load_dotenv()
 
-def generate_text_with_context(base_prompt, tone, company, language, model):
-    """
-    Genera contenido adaptado al contexto si la empresa es RuizTech.
-    """
-    company_clean = company.strip().lower()
-    is_ruiztech = company_clean == "ruiztech"
-
-    # Instrucción de idioma
-    language_instruction = get_language_instruction(language)
-
-    # Si la empresa es RuizTech, añadimos contexto
-    if is_ruiztech:
-        context = get_relevant_chunks(base_prompt)
-        full_prompt = f"""{language_instruction}
-
-Contexto relevante de la empresa RuizTech:
-{context}
-
-Escribe un contenido para la plataforma sobre: "{base_prompt}".
-Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por RuizTech.
-Debe ser directo, atractivo y adecuado para esa red social."""
-    else:
-        # Prompt sin contexto
-        full_prompt = f"""{language_instruction}
-Escribe un contenido para la plataforma sobre: "{base_prompt}".
-Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por {company if company else "una empresa"}.
-Debe ser directo, atractivo y adecuado para esa red social."""
-
-    return generate_text(full_prompt, model)
-
 def get_language_instruction(language):
     """
     Devuelve la instrucción de idioma apropiada para el LLM.
@@ -44,5 +14,40 @@ def get_language_instruction(language):
         "Español": "Responde en español.",
         "Inglés": "Respond in English.",
         "Francés": "Réponds en français.",
-        "Italiano": "Rispondi in italiano."
+        "Italiano": "Rispondi in italiano. Scrivi con chiarezza e naturalezza come un madrelingua italiano."
     }.get(language, "Responde en español.")
+
+def generate_text_with_context(topic, platform, tone, company, language, model, audience=None):
+    """
+    Genera contenido adaptado al contexto si la empresa es RuizTech.
+    También incorpora información sobre la audiencia objetivo.
+    """
+    company_clean = company.strip().lower()
+    is_ruiztech = company_clean == "ruiztech"
+    language_instruction = get_language_instruction(language)
+
+    # 🧩 Añadir audiencia si está presente
+    audience_text = f"\nLa audiencia objetivo son: {audience}." if audience else ""
+
+    # Construcción del mensaje principal
+    message_base = f"""Escribe un contenido para la plataforma {platform}, sobre el tema: "{topic}"."""
+
+    if is_ruiztech:
+        context = get_relevant_chunks(topic)
+        full_prompt = f"""{language_instruction}
+
+Contexto relevante de la empresa RuizTech:
+{context}
+
+{message_base}{audience_text}
+Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por RuizTech.
+Debe ser directo, atractivo y adecuado para esa red social."""
+    else:
+        full_prompt = f"""{language_instruction}
+{message_base}{audience_text}
+Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por {company if company else "una empresa"}.
+Debe ser directo, atractivo y adecuado para esa red social."""
+
+    # Retorna también el prompt para mostrarlo en la app
+    return generate_text(full_prompt, model), full_prompt
+

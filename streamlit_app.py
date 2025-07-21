@@ -17,6 +17,8 @@ with st.form("content_form"):
     language = st.selectbox("🌐 Idioma del contenido", [
         "Español", "Inglés", "Francés", "Italiano"
     ])
+    audience = st.text_input("👥 Audiencia objetivo (opcional)", value="")
+
     model_display = {
         "LLaMA 3 (8B)": "meta-llama/llama-3-8b-instruct",
         "Mistral 7B": "mistralai/mistral-7b-instruct"
@@ -30,27 +32,19 @@ with st.form("content_form"):
 
 if submit:
     with st.spinner("🔄 Generando texto..."):
-        language_prompt = {
-            "Español": "Responde en español.",
-            "Inglés": "Respond in English.",
-            "Francés": "Réponds en français.",
-            "Italiano": "Rispondi in italiano."
-        }[language]
-
-        # Construcción del prompt base
-        prompt_base = f"""{language_prompt}
-Escribe un contenido para la plataforma {platform}, sobre el tema: "{topic}"."""
-
-        # Generar contenido con o sin contexto
-        result = generate_text_with_context(prompt_base, tone, company, language, model)
+        result, final_prompt = generate_text_with_context(
+            topic, platform, tone, company, language, model, audience
+        )
 
     st.subheader("📄 Contenido generado:")
     st.write(result)
 
-    # Imagen generada (opcional)
+    st.subheader("🧪 Prompt enviado al modelo:")
+    st.code(final_prompt, language="text")
+
     if generate_image:
         with st.spinner("🎨 Generando imagen con IA..."):
-            image_data = generate_image_url(topic)
+            image_data = generate_image_url(topic, platform, tone, audience)
 
         st.subheader("🖼️ Imagen generada por IA:")
         if image_data:
