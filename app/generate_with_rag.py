@@ -11,11 +11,11 @@ def get_language_instruction(language):
     Devuelve la instrucción de idioma apropiada para el LLM.
     """
     return {
-        "Español": "Responde en español.",
-        "Inglés": "Respond in English.",
-        "Francés": "Réponds en français.",
-        "Italiano": "Rispondi in italiano. Scrivi con chiarezza e naturalezza come un madrelingua italiano."
-    }.get(language, "Responde en español.")
+        "Español": "Responde en español con corrección y claridad.",
+        "Inglés": "Respond in English with correct grammar and natural style.",
+        "Francés": "Réponds en français avec une grammaire correcte et un style naturel.",
+        "Italiano": "Rispondi in italiano con una grammatica corretta e uno stile naturale."
+    }.get(language, "Responde en español con corrección y claridad.")
 
 def generate_text_with_context(topic, platform, tone, company, language, model, audience=None):
     """
@@ -27,7 +27,7 @@ def generate_text_with_context(topic, platform, tone, company, language, model, 
     language_instruction = get_language_instruction(language)
 
     # 🧩 Añadir audiencia si está presente
-    audience_text = f"\nLa audiencia objetivo son: {audience}." if audience else ""
+    audience_text = f"\nLa audiencia objetivo es: {audience}, utiliza lenguaje específico para esta audiencia" if audience else ""
 
     # Construcción del mensaje principal
     message_base = f"""Escribe un contenido para la plataforma {platform}, sobre el tema: "{topic}"."""
@@ -40,7 +40,7 @@ Contexto relevante de la empresa RuizTech:
 {context}
 
 {message_base}{audience_text}
-Usa un tono {tone.lower()} y adapta el mensaje como si fuera publicado por RuizTech.
+Usa un tono {tone.lower()}, y adapta el mensaje como si fuera publicado por RuizTech.
 Debe ser directo, atractivo y adecuado para esa red social."""
     else:
         full_prompt = f"""{language_instruction}
